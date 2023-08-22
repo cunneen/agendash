@@ -1,6 +1,7 @@
 #!/usr/bin/env node
+/* eslint-disable no-process-exit */
 "use strict";
-const Agenda = require("agenda");
+const { Agenda } = require("@hokify/agenda");
 const agendash = require("../app");
 const Fastify = require("fastify");
 const program = require("commander");
@@ -43,9 +44,12 @@ if (!program.path.startsWith("/")) {
   process.exit(1);
 }
 
+// eslint-disable-next-line new-cap
 const fastify = Fastify();
 
-const agenda = new Agenda().database(program.db, program.collection);
+const agenda = new Agenda({
+  db: { address: program.db, collection: program.collection },
+});
 
 fastify.register(
   agendash(agenda, {

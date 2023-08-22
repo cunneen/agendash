@@ -1,6 +1,7 @@
 #!/usr/bin/env node
+/* eslint-disable no-process-exit */
 "use strict";
-const { Agenda } = require("agenda");
+const { Agenda } = require("@hokify/agenda");
 const agendash = require("../app");
 const Hapi = require("@hapi/hapi");
 const program = require("commander");
@@ -39,7 +40,9 @@ const init = async () => {
     host: "localhost",
   });
 
-  const agenda = new Agenda().database(program.db, program.collection);
+  const agenda = new Agenda({
+    db: { address: program.db, collection: program.collection },
+  });
 
   await server.register(require("@hapi/inert"));
   await server.register(
