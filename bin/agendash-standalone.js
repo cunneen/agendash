@@ -1,4 +1,4 @@
-#!/usr/bin/env node --inspect
+#!/usr/bin/env node
 /* eslint-disable no-process-exit */
 "use strict";
 const http = require("http");
