@@ -1,6 +1,7 @@
 #!/usr/bin/env node
+/* eslint-disable no-process-exit */
 "use strict";
-const { Agenda } = require("agenda");
+const { Agenda } = require("@hokify/agenda");
 const agendash = require("../app");
 const Koa = require("koa");
 const program = require("commander");
@@ -34,7 +35,9 @@ if (!program.db) {
 }
 
 const init = async () => {
-  const agenda = new Agenda().database(program.db, program.collection);
+  const agenda = new Agenda({
+    db: { address: program.db, collection: program.collection },
+  });
 
   const app = new Koa();
   const middlewares = agendash(agenda, {

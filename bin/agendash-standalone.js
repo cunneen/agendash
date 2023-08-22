@@ -1,7 +1,8 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --inspect
+/* eslint-disable no-process-exit */
 "use strict";
 const http = require("http");
-const { Agenda } = require("agenda");
+const { Agenda } = require("@hokify/agenda");
 const agendash = require("../app");
 const express = require("express");
 const program = require("commander");
@@ -46,7 +47,10 @@ if (!program.path.startsWith("/")) {
 
 const app = express();
 
-const agenda = new Agenda().database(program.db, program.collection);
+const agenda = new Agenda({
+  db: { address: program.db, collection: program.collection },
+});
+
 app.use(
   program.path,
   agendash(agenda, {

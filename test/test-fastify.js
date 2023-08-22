@@ -1,15 +1,20 @@
 const test = require("ava");
 const supertest = require("supertest");
 const Fastify = require("fastify");
-let Agenda = require("agenda");
+let { Agenda } = require("@hokify/agenda");
 Agenda = Agenda.Agenda || Agenda;
 
-const agenda = new Agenda().database(
-  "mongodb://127.0.0.1/agendash-test-db",
-  "agendash-test-collection",
-  { useUnifiedTopology: true }
-);
+const agenda = new Agenda({
+  db: {
+    address: "mongodb://127.0.0.1/agendash-test-db",
+    collection: "agendash-test-collection",
+    options: { useUnifiedTopology: true },
+  },
+});
 
+const getCollection = (agenda) => agenda._collection?.collection || agenda?._collection || agenda.db?.collection
+
+// eslint-disable-next-line new-cap
 const fastify = Fastify();
 
 fastify.register(
@@ -31,7 +36,7 @@ test.before(async () => {
 });
 
 test.beforeEach(async () => {
-  await agenda._collection.deleteMany({}, null);
+  await getCollection(agenda).deleteMany({}, null);
 });
 
 test.serial(
@@ -58,8 +63,7 @@ test.serial(
       .set("Accept", "application/json");
 
     t.true("created" in response.body);
-
-    agenda._collection.count({}, null, (error, result) => {
+    getCollection(agenda).count({}, null, (error, result) => {
       t.falsy(error);
       if (result !== 1) {
         throw new Error("Expected one document in database");
@@ -83,7 +87,7 @@ test.serial("POST /api/jobs/delete should delete the job", async (t) => {
 
   t.true("deleted" in response.body);
 
-  const count = await agenda._collection.count({}, null);
+  const count = await getCollection(agenda).count({}, null);
   t.is(count, 0);
 });
 
@@ -101,7 +105,6 @@ test.serial("POST /api/jobs/requeue should requeue the job", async (t) => {
     .set("Accept", "application/json");
 
   t.false("newJobs" in response.body);
-
-  const count = await agenda._collection.count({}, null);
+  const count = await getCollection(agenda).count({}, null);
   t.is(count, 2);
 });
